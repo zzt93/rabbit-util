@@ -29,15 +29,21 @@ public class MessageFormatSender {
         send(messageFormat);
     }
 
+    public void send(MessageFormat messageFormat) {
+        send(rabbitTemplate.getRoutingKey(), messageFormat);
+    }
+
     /**
-     *
      * @see RabbitTemplate#DEFAULT_EXCHANGE
      * @see RabbitTemplate#DEFAULT_ROUTING_KEY
      */
-    public void send(MessageFormat messageFormat) {
-        // if using DEFAULT_EXCHANGE, remind user
+    public void send(String routingKey, MessageFormat messageFormat) {
+        // if using DEFAULT_ROUTING_KEY, remind user
+        if (routingKey.equals("")) {
+            logger.warn("Using default routing key, you need routing key for your RabbitTemplate");
+        }
         if (rabbitTemplate.getExchange().equals("")) {
-            logger.warn("Using default exchange, you may need setting exchange for your RabbitTemplate");
+            logger.warn("Using default routing key, you may need setting exchange for your RabbitTemplate");
         }
         String destinationRoutingKey = messageFormat.getDestinationRoutingKey();
         if (destinationRoutingKey == null) {
