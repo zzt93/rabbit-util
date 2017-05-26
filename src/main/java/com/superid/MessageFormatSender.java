@@ -18,16 +18,6 @@ public class MessageFormatSender {
         this.rabbitTemplate = rabbitTemplate;
     }
 
-    public void send(String msg) {
-        MessageFormat messageFormat;
-        try {
-            messageFormat = MessageFormat.getMessageFormat(msg);
-        } catch (IOException e) {
-            logger.error("", e);
-            return;
-        }
-        send(messageFormat);
-    }
 
     public void send(MessageFormat messageFormat) {
         send(rabbitTemplate.getRoutingKey(), messageFormat);
@@ -45,12 +35,27 @@ public class MessageFormatSender {
         if (rabbitTemplate.getExchange().equals("")) {
             logger.warn("Using default routing key, you may need setting exchange for your RabbitTemplate");
         }
-        String destinationRoutingKey = messageFormat.getDestinationRoutingKey();
-        if (destinationRoutingKey == null) {
-            rabbitTemplate.convertAndSend(messageFormat.toJson());
-        }
-        rabbitTemplate.convertAndSend(destinationRoutingKey, messageFormat.toJson());
+        rabbitTemplate.convertAndSend(routingKey, messageFormat.toJson());
     }
 
+    public void reply(String msg) {
+        MessageFormat messageFormat;
+        try {
+            messageFormat = MessageFormat.getMessageFormat(msg);
+        } catch (IOException e) {
+            logger.error("", e);
+            return;
+        }
+        reply(messageFormat);
+    }
+
+    public void reply(MessageFormat messageFormat) {
+        String replyRoutingKey = messageFormat.getReplyRoutingKey();
+        if (replyRoutingKey == null) {
+            logger.error("Invoke reply without reply routing key");
+            return;
+        }
+        rabbitTemplate.convertAndSend(replyRoutingKey, messageFormat.toJson());
+    }
 
 }

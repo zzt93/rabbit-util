@@ -1,6 +1,8 @@
 package com.superid;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.annotations.Expose;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -10,28 +12,22 @@ import java.util.HashMap;
  */
 public class MessageFormat {
 
-    private static Gson gson = new Gson();
-    private String destinationRoutingKey;
-    private long id;
+    private static final transient String REPLY_ROUTING_KEY = "replyRoutingKey";
+    private static Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+    @Expose
+    private Long id;
+    @Expose
     private HashMap<String, Object> payload = new HashMap<String, Object>();
-
-    public static MessageFormat getMessageFormat(String json) throws IOException {
-        return gson.fromJson(json, MessageFormat.class);
-    }
 
     public MessageFormat() {
     }
 
-    public MessageFormat(String destinationRoutingKey) {
-        this.destinationRoutingKey = destinationRoutingKey;
+    public MessageFormat(String replyRoutingKey) {
+        setReplyRoutingKey(replyRoutingKey);
     }
 
-    public String getDestinationRoutingKey() {
-        return destinationRoutingKey;
-    }
-
-    public void setDestinationRoutingKey(String destinationRoutingKey) {
-        this.destinationRoutingKey = destinationRoutingKey;
+    public static MessageFormat getMessageFormat(String json) throws IOException {
+        return gson.fromJson(json, MessageFormat.class);
     }
 
     public long getId() {
@@ -66,9 +62,16 @@ public class MessageFormat {
     @Override
     public String toString() {
         return "MessageFormat{" +
-                "destinationRoutingKey='" + destinationRoutingKey + '\'' +
-                ", id=" + id +
+                "id=" + id +
                 ", payload=" + payload +
                 '}';
+    }
+
+    String getReplyRoutingKey() {
+        return (String) payload.get(REPLY_ROUTING_KEY);
+    }
+
+    private void setReplyRoutingKey(String destinationRoutingKey) {
+        payload.put(REPLY_ROUTING_KEY, destinationRoutingKey);
     }
 }
