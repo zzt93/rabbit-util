@@ -33,7 +33,7 @@ public class MessageFormatSender {
             logger.warn("Using default routing key, you need routing key for your RabbitTemplate");
         }
         if (rabbitTemplate.getExchange().equals("")) {
-            logger.warn("Using default routing key, you may need setting exchange for your RabbitTemplate");
+            logger.warn("Using default exchange, you may need setting exchange for your RabbitTemplate");
         }
         rabbitTemplate.convertAndSend(routingKey, messageFormat.toJson());
     }
